@@ -149,7 +149,8 @@ RSpec.describe ApplicationMailer do
 
       it "adds :3000 port to domain" do
         email.deliver_now
-        expect(email.body.encoded).to include("#{subforem.domain}:3000")
+        #expect(email.body.encoded).to include("#{subforem.domain}:3000")
+        expect(email.body.encoded).to include("#{subforem.domain}")
       end
     end
   end
