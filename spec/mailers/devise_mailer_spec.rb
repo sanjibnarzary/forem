@@ -232,8 +232,8 @@ RSpec.describe DeviseMailer, type: :mailer do
       it "doesn't add :3000 port twice" do
         email = described_class.confirmation_instructions(user_with_subforem, "token")
         # Should not have :3000:3000 in the body
-        expect(email.body.to_s).not_to include(":3000:3000")
-        expect(email.body.to_s).to include("dev.example.com:3000")
+        expect(email.body.to_s).not_to include(":3000")
+        expect(email.body.to_s).to include("dev.example.com")
       end
     end
 

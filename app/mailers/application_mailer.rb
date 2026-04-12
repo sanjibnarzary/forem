@@ -96,10 +96,11 @@ class ApplicationMailer < ActionMailer::Base
     domain ||= ApplicationConfig["APP_DOMAIN"]
     
     # Add port for development
-    #if Rails.env.development? && domain && !domain.include?(":3000")
-    #  domain = "#{domain}:3000"
-    #end
-    domain = "#{domain}"
+    if Rails.env.development? && domain && !domain.include?(":3000")
+      #domain = "#{domain}:3000"
+      domain = "#{domain}"
+    end
+    
     domain
   rescue ActiveRecord::StatementInvalid
     # If there's a database error, fall back to ApplicationConfig
