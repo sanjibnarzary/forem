@@ -81,10 +81,7 @@ class DeviseMailer < Devise::Mailer
     domain ||= ApplicationConfig["APP_DOMAIN"]
     
     # Add port for development
-    if Rails.env.development? && domain && !domain.include?(":3000")
-      #domain = "#{domain}:3000"
-      domain = "#{domain}"
-    end
+    # No longer append :3000 in development
     domain
   rescue ActiveRecord::StatementInvalid
     # If there's a database error, fall back to ApplicationConfig

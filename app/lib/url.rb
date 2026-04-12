@@ -29,7 +29,6 @@ module URL
 
   def self.url(uri = nil, domain_or_subforem = nil)
     base_url = "#{protocol}#{domain(domain_or_subforem)}"
-    #base_url += ":3000" if Rails.env.development? && !base_url.include?(":3000")
     return base_url unless uri
     Addressable::URI.parse(base_url).join(uri).normalize.to_s
   end

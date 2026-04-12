@@ -108,7 +108,7 @@ Rails.application.configure do
 
   config.hosts << /.+\.lvh\.me/
 
-  config.app_domain = ENV.fetch("APP_DOMAIN", "localhost:3000")
+  config.app_domain = ENV.fetch("APP_DOMAIN", "localhost")
 
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.perform_deliveries = true

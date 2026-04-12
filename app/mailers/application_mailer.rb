@@ -95,12 +95,6 @@ class ApplicationMailer < ActionMailer::Base
     # Ultimate fallback to ApplicationConfig if Settings table doesn't exist
     domain ||= ApplicationConfig["APP_DOMAIN"]
     
-    # Add port for development
-    if Rails.env.development? && domain && !domain.include?(":3000")
-      #domain = "#{domain}:3000"
-      domain = "#{domain}"
-    end
-    
     domain
   rescue ActiveRecord::StatementInvalid
     # If there's a database error, fall back to ApplicationConfig
