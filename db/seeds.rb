@@ -208,6 +208,70 @@ seeder.create_if_doesnt_exist(User, "email", "admin@forem.local") do
   user.add_role(:tech_admin)
 end
 
+admin_user = User.find_by(email: "admin@forem.local")
+if admin_user
+  Organization.find_each do |organization|
+    membership = OrganizationMembership.find_or_initialize_by(
+      user_id: admin_user.id,
+      organization_id: organization.id
+    )
+    membership.update!(type_of_user: "admin")
+
+    user_ids = organization.user_ids
+    if user_ids.size < 3
+      User.where.not(id: user_ids).limit(2).each do |other_user|
+        OrganizationMembership.find_or_create_by!(
+          user_id: other_user.id,
+          organization_id: organization.id
+        ) do |m|
+          m.type_of_user = "member"
+        end
+      end
+    end
+  end
+end
+
+seeder.create_if_doesnt_exist(User, "email", "org_admin@forem.local") do
+  user = User.create!(
+    name: "Org Admin",
+    email: "org_admin@forem.local",
+    username: "org_admin_local",
+    profile_image: Rails.root.join("app/assets/images/#{rand(1..40)}.png").open,
+    confirmed_at: Time.current,
+    registered_at: Time.current,
+    password: "password",
+    password_confirmation: "password",
+  )
+  OrganizationMembership.create!(user: user, organization: Organization.first, type_of_user: "admin") if Organization.any?
+end
+
+seeder.create_if_doesnt_exist(User, "email", "org_member@forem.local") do
+  user = User.create!(
+    name: "Org Member",
+    email: "org_member@forem.local",
+    username: "org_member_local",
+    profile_image: Rails.root.join("app/assets/images/#{rand(1..40)}.png").open,
+    confirmed_at: Time.current,
+    registered_at: Time.current,
+    password: "password",
+    password_confirmation: "password",
+  )
+  OrganizationMembership.create!(user: user, organization: Organization.first, type_of_user: "member") if Organization.any?
+end
+
+seeder.create_if_doesnt_exist(User, "email", "no_org@forem.local") do
+  User.create!(
+    name: "Independent User",
+    email: "no_org@forem.local",
+    username: "independent_local",
+    profile_image: Rails.root.join("app/assets/images/#{rand(1..40)}.png").open,
+    confirmed_at: Time.current,
+    registered_at: Time.current,
+    password: "password",
+    password_confirmation: "password",
+  )
+end
+
 Users::CreateMascotAccount.call unless Settings::General.mascot_user_id
 
 ##############################################################################
@@ -1041,6 +1105,41 @@ end
 # Pin an article for dynamic feed representation
 first_article = Article.order(Arel.sql("RANDOM()")).first
 PinnedArticle.set(first_article) if first_article.present?
+##############################################################################
+
+seeder.create_if_none(Event) do
+  user_ids = User.pluck(:id)
+  
+  Event.create!(
+    title: "AWS Industries LIVE!",
+    event_name_slug: "aws-industries-live",
+    event_variation_slug: "v1",
+    description: "AWS Industries LIVE! features AWS Partners discussing various topics related to their industry, their solutions, and how they can help customers.",
+    primary_stream_url: "https://player.twitch.tv/?channel=aws&parent=#{Settings::General.app_domain.split(':').first}",
+    data: { chat_url: "https://www.twitch.tv/embed/aws/chat?parent=#{Settings::General.app_domain.split(':').first}" },
+    published: true,
+    start_time: 1.day.ago,
+    end_time: 1.week.from_now,
+    type_of: :live_stream,
+    user_id: user_ids.sample,
+    tag_list: "aws"
+  )
+  
+  Event.create!(
+    title: "Forem Walkthrough with Ben Halpern",
+    event_name_slug: "forem-walkthrough-with-ben-halpern",
+    event_variation_slug: "v1",
+    description: "Join us for a walkthrough of the newest Forem features.",
+    primary_stream_url: "https://player.twitch.tv/?channel=ThePracticalDev&parent=#{Settings::General.app_domain.split(':').first}",
+    data: {},
+    published: true,
+    start_time: 2.days.from_now,
+    end_time: 2.days.from_now + 2.hours,
+    type_of: :live_stream,
+    user_id: user_ids.sample,
+    tag_list: "forem, updates"
+  )
+end
 
 puts <<-ASCII
 
